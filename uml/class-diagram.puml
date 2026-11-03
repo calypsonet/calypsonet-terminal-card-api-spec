@@ -79,13 +79,21 @@ package "card" as card {
 package "spi" as spi {
     interface "CardSelectionExtensionSpi" as CardSelectionExtensionSpi <<red>> {
         +getCardSelectionRequest() → <color:blue>CardSelectionRequest
-        +parse(cardSelectionResponse: <color:blue>CardSelectionResponse</color>) → SmartCardSpi
+    }
+    interface "<color:blue>BasicCardSelectionExtensionSpi" as BasicCardSelectionExtensionSpi <<red>> <<blue>> extends CardSelectionExtensionSpi {
+        +<color:blue>parse(cardSelectionResponse: CardSelectionResponse) → SmartCardSpi
+        {method} <size:10><color:#7F8C8D>    ⚠ errors: Parse</color></size>
+    }
+    interface "<color:blue>IsoCardSelectionExtensionSpi" as IsoCardSelectionExtensionSpi <<red>> <<blue>> extends CardSelectionExtensionSpi {
+        +<color:blue>parse(cardSelectionResponse: CardSelectionResponse) → IsoSmartCardSpi
         {method} <size:10><color:#7F8C8D>    ⚠ errors: Parse</color></size>
     }
     interface SmartCardSpi <<red>> {
         +<color:blue>deactivate() → Unit
     }
-    interface "<color:blue>MultichannelSmartCardSpi" as MultichannelSmartCardSpi <<red>> extends SmartCardSpi {
+    interface "<color:blue>IsoSmartCardSpi" as IsoSmartCardSpi <<red>> <<blue>> extends SmartCardSpi {
+    }
+    interface "<color:blue>MultichannelSmartCardSpi" as MultichannelSmartCardSpi <<red>> extends IsoSmartCardSpi {
         +<color:blue>getChannel() → Int
     }
     ' REQUEST
@@ -153,26 +161,29 @@ exception "ReaderBrokenCommunication\nCardBrokenCommunication\nUnexpectedStatusW
 
 ' Associations
 
-CardSelectionExtensionSpi ..> SmartCardSpi #C_LINK : provide >
-CardSelectionExtensionSpi ..> CardSelectionRequest #C_LINK : provide >
-CardSelectionExtensionSpi ..> CardSelectionResponse #C_USE : use >
+CardSelectionExtensionSpi ......> CardSelectionRequest #C_LINK : provide >
 
-CardSelectionRequest ..> CardRequest #C_USE : use >
+BasicCardSelectionExtensionSpi ..> SmartCardSpi #C_LINK : provide >
+BasicCardSelectionExtensionSpi .......> CardSelectionResponse #C_USE : use >
 
-CardRequest ..> ApduRequest #C_USE : use >
+IsoCardSelectionExtensionSpi ...> IsoSmartCardSpi #C_LINK : provide >
+IsoCardSelectionExtensionSpi .......> CardSelectionResponse #C_USE : use >
 
-CardSelectionResponse ..> ApduResponse #C_USE : use >
-CardSelectionResponse ..> CardResponse #C_USE : use >
+CardSelectionRequest .right.> CardRequest #C_USE : use >
 
-CardResponse ..> ApduResponse #C_USE : use >
+CardRequest .right.> ApduRequest #C_USE : use >
+
+CardSelectionResponse .right.> ApduResponse #C_USE : use >
+CardSelectionResponse .right.> CardResponse #C_USE : use >
+
+CardResponse .right.> ApduResponse #C_USE : use >
 
 errors *-up- "0..1" CardResponse #C_LINK
 
-ProxyReaderApi .left.> CardRequest #C_USE : use >
-ProxyReaderApi .up.> SmartCardSpi #C_USE : use >
-ProxyReaderApi ..> MultichannelSmartCardSpi #C_USE : use >
-
-ProxyReaderApi .right.> CardResponse #C_LINK : provide >
+ProxyReaderApi .up...> SmartCardSpi #C_USE : use >
+ProxyReaderApi .up..> MultichannelSmartCardSpi #C_USE : use >
+ProxyReaderApi .up.> CardRequest #C_USE : use >
+ProxyReaderApi ..> CardResponse #C_LINK : provide >
 
 ' == LAYOUT ==
 

@@ -214,10 +214,12 @@ column.
 
 [cols="^.^1,^.^1", options="header"]
 |===
-| CNA-TR-API interface     | CNA-TC-API type
-| `CardReader`             | <<type_ProxyReaderApi,`ProxyReaderApi`>>
-| `CardSelectionExtension` | <<type_CardSelectionExtensionSpi,`CardSelectionExtensionSpi`>>
-| `SmartCard`              | <<type_SmartCardSpi,`SmartCardSpi`>>
+| CNA-TR-API interface          | CNA-TC-API type
+| `CardReader`                  | <<type_ProxyReaderApi,`ProxyReaderApi`>>
+| `BasicCardSelectionExtension` | <<type_BasicCardSelectionExtensionSpi,`BasicCardSelectionExtensionSpi`>>
+| `IsoCardSelectionExtension`   | <<type_IsoCardSelectionExtensionSpi,`IsoCardSelectionExtensionSpi`>>
+| `SmartCard`                   | <<type_SmartCardSpi,`SmartCardSpi`>>
+| `IsoSmartCard`                | <<type_IsoSmartCardSpi,`IsoSmartCardSpi`>>
 |===
 
 Throughout this specification, the key words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**,
@@ -886,6 +888,34 @@ partial response, or keep strict control over the APDUs sent to the card (see
 
 === SPI Interfaces
 
+[[type_BasicCardSelectionExtensionSpi]]
+==== Basic Card Selection Extension SPI
+
+[cols="^.^1h,.^5", grid=rows, frame=all]
+|===
+| Name       | `BasicCardSelectionExtensionSpi`
+| Kind       | Interface (SPI)
+| Namespace  | `card.spi`
+| Extends    | <<type_CardSelectionExtensionSpi,`CardSelectionExtensionSpi`>>
+| Since      | 3.0
+| Purpose    | Selection SPI of a card extension whose products are selected without ISO/IEC 7816-4 filters. It is the counterpart of the `BasicCardSelectionExtension` of <<ref_cna_tr,CNA-TR-API>>.
+|===
+
+[[op_BasicCardSelectionExtensionSpi_parse]]
+===== Parse
+
+[cols="^.^1h,.^5", grid=rows, frame=all]
+|===
+| Signature      | `parse(cardSelectionResponse: CardSelectionResponse) -> SmartCardSpi`
+| Since          | 3.0
+| Description
+| Parses the response of an executed selection case to produce the corresponding smart-card SPI.
+| Parameters     | `cardSelectionResponse` (<<type_CardSelectionResponse,`CardSelectionResponse`>>) -- the card selection response.
+| Returns        | A <<type_SmartCardSpi,`SmartCardSpi`>>.
+| Pre-conditions | *Argument* -- every parameter is non-`null`.
+| Errors         | <<type_Parse,`Parse`>> -- if the response cannot be interpreted.
+|===
+
 [[type_CardSelectionExtensionSpi]]
 ==== Card Selection Extension SPI
 
@@ -895,7 +925,7 @@ partial response, or keep strict control over the APDUs sent to the card (see
 | Kind       | Interface (SPI)
 | Namespace  | `card.spi`
 | Since      | 2.0
-| Purpose    | Drives a selection case from the card-extension side: builds the selection request and parses the resulting response into a smart card.
+| Purpose    | Drives a selection case from the card-extension side: builds the selection request. The parsing of the response is defined by the two family SPIs that extend it, <<type_BasicCardSelectionExtensionSpi,`BasicCardSelectionExtensionSpi`>> and <<type_IsoCardSelectionExtensionSpi,`IsoCardSelectionExtensionSpi`>>, each producing the smart-card SPI of its family.
 |===
 
 [[op_CardSelectionExtensionSpi_getCardSelectionRequest]]
@@ -911,19 +941,48 @@ partial response, or keep strict control over the APDUs sent to the card (see
 | Errors         | None.
 |===
 
-[[op_CardSelectionExtensionSpi_parse]]
+[[type_IsoCardSelectionExtensionSpi]]
+==== ISO Card Selection Extension SPI
+
+[cols="^.^1h,.^5", grid=rows, frame=all]
+|===
+| Name       | `IsoCardSelectionExtensionSpi`
+| Kind       | Interface (SPI)
+| Namespace  | `card.spi`
+| Extends    | <<type_CardSelectionExtensionSpi,`CardSelectionExtensionSpi`>>
+| Since      | 3.0
+| Purpose    | Selection SPI of a card extension whose products are ISO/IEC 7816-4 cards. It is the counterpart of the `IsoCardSelectionExtension` of <<ref_cna_tr,CNA-TR-API>>, and the only family able to produce a smart card active on a logical channel.
+|===
+
+[[op_IsoCardSelectionExtensionSpi_parse]]
 ===== Parse
 
 [cols="^.^1h,.^5", grid=rows, frame=all]
 |===
-| Signature      | `parse(cardSelectionResponse: CardSelectionResponse) -> SmartCardSpi`
-| Since          | 1.0
+| Signature      | `parse(cardSelectionResponse: CardSelectionResponse) -> IsoSmartCardSpi`
+| Since          | 3.0
 | Description
-| Parses the response of an executed selection case to produce the corresponding smart-card SPI.
+| Parses the response of an executed selection case to produce the corresponding smart-card SPI. The result is an
+  <<type_IsoSmartCardSpi,`IsoSmartCardSpi`>>, which the extension MAY specialise further as a
+  <<type_MultichannelSmartCardSpi,`MultichannelSmartCardSpi`>> when the card supports several active logical
+  channels.
 | Parameters     | `cardSelectionResponse` (<<type_CardSelectionResponse,`CardSelectionResponse`>>) -- the card selection response.
-| Returns        | A <<type_SmartCardSpi,`SmartCardSpi`>>.
+| Returns        | An <<type_IsoSmartCardSpi,`IsoSmartCardSpi`>>.
 | Pre-conditions | *Argument* -- every parameter is non-`null`.
 | Errors         | <<type_Parse,`Parse`>> -- if the response cannot be interpreted.
+|===
+
+[[type_IsoSmartCardSpi]]
+==== ISO Smart Card SPI
+
+[cols="^.^1h,.^5", grid=rows, frame=all]
+|===
+| Name       | `IsoSmartCardSpi`
+| Kind       | Marker interface (SPI)
+| Namespace  | `card.spi`
+| Extends    | <<type_SmartCardSpi,`SmartCardSpi`>>
+| Since      | 3.0
+| Purpose    | Card-extension facet of a smart card selected through ISO/IEC 7816-4 filters. It declares no operation of its own; it is the type from which the multi-channel facet derives.
 |===
 
 [[type_MultichannelSmartCardSpi]]
@@ -934,9 +993,9 @@ partial response, or keep strict control over the APDUs sent to the card (see
 | Name       | `MultichannelSmartCardSpi`
 | Kind       | Interface (SPI)
 | Namespace  | `card.spi`
-| Extends    | <<type_SmartCardSpi,`SmartCardSpi`>>
+| Extends    | <<type_IsoSmartCardSpi,`IsoSmartCardSpi`>>
 | Since      | 3.0
-| Purpose    | Multi-channel variant of the smart-card SPI, used by card extensions whose underlying card supports several active logical channels.
+| Purpose    | Multi-channel variant of the smart-card SPI, used by card extensions whose underlying card supports several active logical channels. Deriving from the ISO facet, it can only be produced by an <<type_IsoCardSelectionExtensionSpi,`IsoCardSelectionExtensionSpi`>>.
 |===
 
 [[op_MultichannelSmartCardSpi_getChannel]]
@@ -1030,7 +1089,7 @@ and <<type_ApduExchangeDurationExceeded,`ApduExchangeDurationExceeded`>> -- addi
 | Kind       | Error
 | Namespace  | `card`
 | Since      | 2.0
-| Purpose    | Raised by <<type_CardSelectionExtensionSpi,`CardSelectionExtensionSpi.parse`>> when the parsing of the card selection response has failed. The most likely reason is that the *Select Application* command returned an invalid FCI structure.
+| Purpose    | Raised by the `parse` operation of a selection SPI, <<type_BasicCardSelectionExtensionSpi,`BasicCardSelectionExtensionSpi`>> or <<type_IsoCardSelectionExtensionSpi,`IsoCardSelectionExtensionSpi`>>, when the parsing of the card selection response has failed. The most likely reason is that the *Select Application* command returned an invalid FCI structure.
 |===
 
 [[type_ReaderBrokenCommunication]]
