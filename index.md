@@ -6,6 +6,18 @@ doc_name: "Terminal Card API"
 latest_stable: "3.0.0"
 latest_stable_path: "latest-stable/"
 versions:
+  - version: "3.0.0-SNAPSHOT"
+    status: snapshot
+    files:
+      diagram:
+        name: "261028-SP-CNATerminalAPI-Card_v3.0.0-SNAPSHOT-class-diagram.svg"
+        size: "69 kB"
+      html:
+        name: "261028-SP-CNATerminalAPI-Card_v3.0.0-SNAPSHOT.html"
+        size: "1.4 MB"
+      pdf:
+        name: "261028-SP-CNATerminalAPI-Card_v3.0.0-SNAPSHOT.pdf"
+        size: "1.2 MB"
   - version: "3.0.0"
     status: stable
     files:
