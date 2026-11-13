@@ -109,7 +109,7 @@ package "spi" as spi {
         +val apdu: ByteArray
         +{field} val successfulStatusWords: Set<Int> = setOf(0x9000)
         +val info: String? = null
-        +<color:blue>val apduExchangeMaxDuration: Long? = null
+        +<color:blue>val apduExchangeMaxDurationUs: Long? = null
     }
 }
 class "CardApiProperties" as ApiProperties <<constants>> <<green>> {
@@ -147,7 +147,7 @@ class "<color:blue>CardResponse" as CardResponse <<data>> <<green>> {
 }
 class "<color:blue>ApduResponse" as ApduResponse <<data>> <<green>> {
     +val apdu: ByteArray
-    +<color:blue>val apduExchangeDuration: Long?
+    +<color:blue>val apduExchangeDurationUs: Long?
 }
 
 exception "ReaderBrokenCommunication\nCardBrokenCommunication\nUnexpectedStatusWord\n<color:blue>ApduExchangeDurationExceeded" as errors <<error>> <<green>> {

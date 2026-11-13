@@ -454,15 +454,18 @@ This specification allows the execution time of each APDU exchange to be control
 provides:
 
 * an *optional* maximum duration on each request
-  (<<type_ApduRequest,`ApduRequest.apduExchangeMaxDuration`>>),
+  (<<type_ApduRequest,`ApduRequest.apduExchangeMaxDurationUs`>>),
 * an *optional* effective duration on each response
-  (<<type_ApduResponse,`ApduResponse.apduExchangeDuration`>>),
+  (<<type_ApduResponse,`ApduResponse.apduExchangeDurationUs`>>),
 * a dedicated error, <<type_ApduExchangeDurationExceeded,`ApduExchangeDurationExceeded`>>, raised when the
   effective duration of an exchange exceeds the declared maximum.
 
-The durations exchanged through this specification are expressed in *microseconds*. The effective resolution of
-the measurement depends on the reader and on the execution platform: an implementation MUST document the
-resolution it provides, and a bound finer than that resolution MUST NOT be relied upon.
+The durations exchanged through this specification are expressed in *microseconds*, which the `Us` suffix of the
+two properties recalls. Every duration of the family carries the suffix of its unit; the only specification that
+departs from the microsecond is the *Calypso Card API*, whose bounds are declared in milliseconds (`...Ms`) and
+converted by the card extension before the request is built. The effective resolution of the measurement depends on
+the reader and on the execution platform: an implementation MUST document the resolution it provides, and a bound
+finer than that resolution MUST NOT be relied upon.
 
 This mechanism is a practical way to implement security countermeasures against two threats. Against a *relay
 attack*, relaying the dialog with a card to a remote location adds a transmission delay; an abnormally long exchange
@@ -565,7 +568,7 @@ include::uml/class-diagram.puml[Terminal Card API class diagram]
 | Informational string describing the APDU, used by implementations for logging and error messages. Non-empty
   when set; `null` when no information is defined.
 
-| `apduExchangeMaxDuration`
+| `apduExchangeMaxDurationUs`
 | `Long?`
 | `null`
 | 3.0
@@ -602,7 +605,7 @@ Instances are serialisable so that they can be transported across distributed bo
   word, in the range `[0x0000, 0xFFFF]`, and the preceding bytes hold the data part, empty when the response
   carries no data. At least 2 bytes.
 
-| `apduExchangeDuration`
+| `apduExchangeDurationUs`
 | `Long?`
 | --
 | 3.0
@@ -1063,7 +1066,7 @@ and <<type_ApduExchangeDurationExceeded,`ApduExchangeDurationExceeded`>> -- addi
 | Since      | 3.0
 | Purpose
 | Indicates that the effective duration of an APDU exchange exceeded the bound declared on the request via
-  <<type_ApduRequest,`ApduRequest.apduExchangeMaxDuration`>>. Higher-level extensions (e.g. Calypso) MAY
+  <<type_ApduRequest,`ApduRequest.apduExchangeMaxDurationUs`>>. Higher-level extensions (e.g. Calypso) MAY
   intercept this error, cancel any ongoing session and propagate the failure to the application as an
   `InvalidCardResponse` (<<ref_cna_tr,CNA-TR-API>>).
 |===
