@@ -461,19 +461,18 @@ provides:
   effective duration of an exchange exceeds the declared maximum.
 
 The durations exchanged through this specification are expressed in *microseconds*, which the `Us` suffix of the
-two properties recalls. Every duration of the family carries the suffix of its unit; the only specification that
-departs from the microsecond is the *Calypso Card API*, whose bounds are declared in milliseconds (`...Ms`) and
-converted by the card extension before the request is built. The effective resolution of the measurement depends on
-the reader and on the execution platform: an implementation MUST document the resolution it provides, and a bound
-finer than that resolution MUST NOT be relied upon.
+two properties recalls. Every duration of the family carries the suffix of its unit, and every one of them is
+expressed in microseconds. The effective resolution of the measurement depends on the reader and on the execution
+platform: an implementation MUST document the resolution it provides, and a bound finer than that resolution MUST
+NOT be relied upon.
 
 This mechanism is a practical way to implement security countermeasures against two threats. Against a *relay
 attack*, relaying the dialog with a card to a remote location adds a transmission delay; an abnormally long exchange
 can therefore reveal that the card is not actually present in front of the reader. Against *card emulation*, a
 generic RFID device answering in place of the expected card processes the command in software, where the chip
 answers in hardware; an abnormally long exchange then reveals that the answer does not come from the expected
-product. The maximum duration to declare depends on the command, the card and the reader, and is chosen by the
-application or the card extension.
+product. The maximum duration to declare depends on the command, the card and the reader. It is not a value an
+application can know: it is chosen by the card extension, from a configuration it obtains by its own means.
 
 [[sec_apdu_construction_rules]]
 === APDU construction rules
